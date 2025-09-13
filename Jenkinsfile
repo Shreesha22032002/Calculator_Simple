@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10-slim'
+            args '-u root' // run as root to install packages if needed
+        }
+    }
     stages {
         stage('Setup Python') {
             steps {
@@ -9,6 +14,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'python -m venv venv'
+                sh './venv/bin/pip install --upgrade pip'
                 sh './venv/bin/pip install -r requirements.txt'
             }
         }

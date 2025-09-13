@@ -1,0 +1,2 @@
+# requirements.txt
+# No external dependencies required as tkinter is included in Python standard library.

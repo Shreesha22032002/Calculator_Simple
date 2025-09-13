@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Run Calculator') {
             steps {
-                sh 'python3 main.py'
+                sh 'xvfb-run python3 main.py'
             }
         }
         stage('Archive Artifacts') {

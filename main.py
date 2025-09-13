@@ -1,5 +1,4 @@
 import tkinter as tk
-import pandas as pd
 
 def click(event):
     btn_text = event.widget["text"]

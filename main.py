@@ -1,34 +1,25 @@
 import tkinter as tk
 import os
+import unittest
 
-def click(event):
-    btn_text = event.widget["text"]
-    if btn_text == "=":
-        try:
-            result = str(eval(entry.get().replace("×", "*").replace("÷", "/")))
-            entry.delete(0, tk.END)
-            entry.insert(tk.END, result)
-        except:
-            entry.delete(0, tk.END)
-            entry.insert(tk.END, "Error")
-    elif btn_text == "C":
-        entry.delete(0, tk.END)
-    elif btn_text == "CE":
-        entry.delete(len(entry.get())-1)
-    else:
-        entry.insert(tk.END, btn_text)
+# ---------------- Calculator Logic ----------------
+def calculate(expression: str) -> str:
+    """Evaluate the calculator expression and return result as string"""
+    try:
+        result = str(eval(expression.replace("×", "*").replace("÷", "/")))
+        return result
+    except:
+        return "Error"
 
-# Detect if running in Jenkins environment
-if os.environ.get('JENKINS_HOME'):
-    print("Running in Jenkins – skipping GUI.")
-else:
+# ---------------- GUI Code ----------------
+def run_gui():
     root = tk.Tk()
     root.title("Calculator")
     root.geometry("320x480")
     root.config(bg="#0E001E")
 
-    entry = tk.Entry(root, font=("Arial", 24), bd=10, relief=tk.FLAT, justify="right",
-                     bg="#48395D", fg="#FEFEFE", insertbackground="white")
+    entry = tk.Entry(root, font=("Arial", 24), bd=10, relief=tk.FLAT,
+                     justify="right", bg="#48395D", fg="#FEFEFE", insertbackground="white")
     entry.pack(fill=tk.BOTH, ipadx=8, ipady=15, padx=10, pady=10)
 
     buttons = [
@@ -42,10 +33,21 @@ else:
     ]
 
     button_colors = {
-        "=": "#563187",
-        "+": "#563187", "-": "#563187", "×": "#563187", "÷": "#563187",
+        "=": "#563187", "+": "#563187", "-": "#563187", "×": "#563187", "÷": "#563187",
         "ON": "#9F82A0", "OFF": "#9F82A0", "CE": "#310374", "%": "#563187"
     }
+
+    def click(event):
+        btn_text = event.widget["text"]
+        if btn_text == "=":
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, calculate(entry.get()))
+        elif btn_text == "C":
+            entry.delete(0, tk.END)
+        elif btn_text == "CE":
+            entry.delete(len(entry.get()) - 1)
+        else:
+            entry.insert(tk.END, btn_text)
 
     for row in buttons:
         frame = tk.Frame(root, bg="#0E001E")
@@ -59,3 +61,34 @@ else:
             btn.bind("<Button-1>", click)
 
     root.mainloop()
+
+# ---------------- Test Cases ----------------
+class TestCalculator(unittest.TestCase):
+
+    def test_addition(self):
+        self.assertEqual(calculate("2+3"), "5")
+        print("Addition test passed!")
+
+    def test_subtraction(self):
+        self.assertEqual(calculate("10-4"), "6")
+        print("Subtraction test passed!")
+
+    def test_multiplication(self):
+        self.assertEqual(calculate("3×5"), "15")
+        print("Multiplication test passed!")
+
+    def test_division(self):
+        self.assertEqual(calculate("20÷4"), "5.0")
+        print("Division test passed!")
+
+    def test_error(self):
+        self.assertEqual(calculate("10/0"), "Error")
+        print("Error handling test passed!")
+
+# ---------------- Main Execution ----------------
+if __name__ == "__main__":
+    if os.environ.get('JENKINS_HOME'):
+        print("Running in Jenkins – executing tests")
+        unittest.main()
+    else:
+        run_gui()
